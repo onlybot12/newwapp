@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <div class="admin-container">
+        <%- include('../partials/sidebar', { activePage: 'orders' }) %>
+        <main class="admin-main-content">
+            <h1><%= title %></h1>
+
+            <% if (success) { %>
+                <div class="alert alert-success"><%= success %></div>
+            <% } %>
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID Pesanan</th>
+                        <th>Pelanggan</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                        <tr>
+                            <td>#<%= order._id.toString().slice(-6) %></td>
+                            <td><%= order.userId ? order.userId.username : 'N/A' %> (<%= order.userId ? order.userId.phoneNumber : 'N/A' %>)</td>
+                            <td>Rp <%= order.totalAmount.toLocaleString('id-ID') %></td>
+                            <td><span class="order-status status-<%= order.status %>"><%= order.status.replace(/_/g, ' ').toUpperCase() %></span></td>
+                            <td><%= order.createdAt.toLocaleDateString('id-ID') %></td>
+                            <td>
+                                <a href="/admin/orders/<%= order._id %>" class="btn btn-primary btn-sm">Lihat</a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </main>
+    </div>
+    <%- include('../../partials/footer') %>
+    <style>
+        .order-status {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .status-pending_whatsapp { background-color: #f0ad4e; color: #fff; } /* Orange */
+        .status-confirmed { background-color: #5bc0de; color: #fff; } /* Light Blue */
+        .status-shipped { background-color: #337ab7; color: #fff; } /* Darker Blue */
+        .status-completed { background-color: #5cb85c; color: #fff; } /* Green */
+        .status-cancelled { background-color: #d9534f; color: #fff; } /* Red */
+    </style>
+</body>
+</html>
