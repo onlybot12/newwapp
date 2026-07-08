@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <main>
+        <h1>Selamat Datang di Grosir Mart!</h1>
+        <p>Situs belanja grosir kebutuhan Anda.</p>
+        <p>Silakan <a href="/login">Login</a> atau <a href="/register">Daftar</a>.</p>
+        <p>User: <%= user ? user.username : 'Guest' %></p>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+</html>
