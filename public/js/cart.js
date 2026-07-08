@@ -1,84 +1,61 @@
-// This script will handle client-side cart interactions (e.g., add to cart button)
-// For now, it will use session storage as a temporary client-side cart for demonstration
-// In a real application, you would send an AJAX request to the server to manage the cart.
-
 document.addEventListener('DOMContentLoaded', () => {
     const cartButtons = document.querySelectorAll('.btn-add-to-cart, .btn-add-to-cart-detail');
-    const cartCountSpan = document.getElementById('cart-count'); // From header.ejs
+    const cartCountSpan = document.getElementById('cart-count');
 
-    // Load cart from session storage on page load
-    let cart = JSON.parse(sessionStorage.getItem('cart')) || [];
-    updateCartCount();
+    // Initial cart count fetch (if user is logged in, their server-side cart might exist)
+    // For simplicity, we assume if user is logged in, their session.cart count is reflected
+    // on page load via EJS. If not, this is 0 by default.
+    // We'll update it after AJAX calls.
 
     cartButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default button action (e.g., form submission)
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
 
             const productId = button.dataset.productId;
             const productName = button.dataset.productName;
-            const productPrice = parseFloat(button.dataset.productPrice);
-            const productUnit = button.dataset.productUnit;
-            const minOrderQuantity = parseInt(button.dataset.productMoq || 1); // Get MOQ from button data
+            const minOrderQuantity = parseInt(button.dataset.productMoq || 1);
 
-            let quantity = 1; // Default quantity
+            let quantity = 1; // Default quantity for product cards
             if (button.classList.contains('btn-add-to-cart-detail')) {
-                // If it's the detail page button, get quantity from input
                 const quantityInput = document.getElementById('quantity');
                 if (quantityInput) {
                     quantity = parseInt(quantityInput.value);
                 }
             } else {
-                // For product cards, use MOQ as default if available, otherwise 1
-                quantity = minOrderQuantity;
+                quantity = minOrderQuantity; // Default for product grid buttons
             }
-            
+
             if (isNaN(quantity) || quantity < 1) {
                 alert('Jumlah harus minimal 1.');
                 return;
             }
 
-            addToCart(productId, productName, productPrice, productUnit, quantity);
-            alert(`${quantity} ${productUnit} ${productName} ditambahkan ke keranjang!`);
+            try {
+                const response = await fetch('/cart/add-update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, quantity, update: false }) // 'update: false' means add to existing quantity
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`${quantity} ${productName} ditambahkan ke keranjang!`);
+                    if (cartCountSpan) {
+                        cartCountSpan.textContent = data.totalCartItems; // Update cart count
+                    }
+                } else {
+                    alert('Gagal menambahkan ke keranjang: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                alert('Terjadi kesalahan saat menambahkan ke keranjang.');
+            }
         });
     });
 
-    function addToCart(productId, productName, productPrice, productUnit, quantity) {
-        const existingItemIndex = cart.findIndex(item => item.productId === productId);
-
-        if (existingItemIndex > -1) {
-            // Update quantity if item already exists
-            cart[existingItemIndex].quantity += quantity;
-        } else {
-            // Add new item
-            cart.push({
-                productId,
-                productName,
-                productPrice,
-                productUnit,
-                quantity
-            });
-        }
-
-        sessionStorage.setItem('cart', JSON.stringify(cart));
-        updateCartCount();
-        console.log('Keranjang saat ini:', cart);
-    }
-
-    function updateCartCount() {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        if (cartCountSpan) {
-            cartCountSpan.textContent = totalItems;
-        }
-    }
-    
-    // Expose cart object for other scripts or debugging if needed
-    window.grosirMartCart = {
-        getCart: () => cart,
-        clearCart: () => {
-            cart = [];
-            sessionStorage.removeItem('cart');
-            updateCartCount();
-            console.log('Keranjang dikosongkan.');
-        }
-    };
+    // Function to update header cart count (called on page load in `app.js` or `header.ejs` using `res.locals`)
+    // No client-side storage, so this should ideally be reflected from session.
+    // For now, let's keep it simple: if you refresh, the number will be based on server session.
+    // Or, we can trigger a small AJAX call on DOMContentLoaded to get current cart count if user is logged in.
+    // For now, this `cart.js` just handles the `add-update` logic.
 });
