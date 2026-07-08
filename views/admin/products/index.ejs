@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <div class="admin-container">
+        <%- include('../partials/sidebar', { activePage: 'products' }) %>
+        <main class="admin-main-content">
+            <h1><%= title %></h1>
+
+            <% if (success) { %>
+                <div class="alert alert-success"><%= success %></div>
+            <% } %>
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+
+            <a href="/admin/products/add" class="btn btn-primary mb-3">Tambah Produk Baru</a>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Gambar</th>
+                        <th>Nama Produk</th>
+                        <th>Kategori</th>
+                        <th>Harga (Normal)</th>
+                        <th>Harga (Grosir)</th>
+                        <th>Stok</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% products.forEach(product => { %>
+                        <tr>
+                            <td>
+                                <% if (product.images && product.images.length > 0) { %>
+                                    <img src="<%= product.images[0] %>" alt="<%= product.name %>" style="width: 50px; height: 50px; object-fit: cover;">
+                                <% } else { %>
+                                    <img src="/img/placeholder.png" alt="No Image" style="width: 50px; height: 50px; object-fit: cover;">
+                                <% } %>
+                            </td>
+                            <td><%= product.name %></td>
+                            <td><%= product.category ? product.category.name : 'N/A' %></td>
+                            <td>Rp <%= product.price.toLocaleString('id-ID') %> / <%= product.unit %></td>
+                            <td>Rp <%= product.wholesalePrice.toLocaleString('id-ID') %> / <%= product.unit %> (Min: <%= product.minOrderQuantity %>)</td>
+                            <td><%= product.stock %> <%= product.unit %></td>
+                            <td>
+                                <span class="status-<%= product.isActive ? 'active' : 'inactive' %>">
+                                    <%= product.isActive ? 'Aktif' : 'Nonaktif' %>
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/admin/products/edit/<%= product._id %>" class="btn btn-warning btn-sm">Edit</a>
+                                <form action="/admin/products/delete/<%= product._id %>" method="POST" style="display:inline;" onsubmit="return confirm('Anda yakin ingin menghapus produk ini? Semua gambar juga akan dihapus.');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </main>
+    </div>
+    <%- include('../../partials/footer') %>
+</body>
+</html>
