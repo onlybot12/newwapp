@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .product-detail-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .product-images {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+        .product-main-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .product-thumbnail-images {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .product-thumbnail-images img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 2px solid #eee;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+        .product-thumbnail-images img.active,
+        .product-thumbnail-images img:hover {
+            border-color: #3498db;
+        }
+        .product-info {
+            flex: 2;
+            min-width: 300px;
+        }
+        .product-info h1 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .product-info .category-tag {
+            background-color: #ecf0f1;
+            color: #555;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        .product-info .price-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #e67e22;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        .product-info .price-display span.wholesale-info {
+            font-size: 1.1rem;
+            color: #27ae60;
+            display: block;
+            font-weight: normal;
+            margin-top: 5px;
+        }
+        .product-info .stock-info {
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .product-info .quantity-selector {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .quantity-selector label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .quantity-selector input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .btn-add-to-cart-detail {
+            background-color: #3498db;
+            color: #fff;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-add-to-cart-detail:hover {
+            background-color: #2980b9;
+        }
+        .product-description {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .product-description h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <main>
+        <% if (product) { %>
+            <div class="product-detail-container">
+                <div class="product-images">
+                    <div class="product-main-image">
+                        <% if (product.images && product.images.length > 0) { %>
+                            <img id="main-product-image" src="<%= product.images[0] %>" alt="<%= product.name %>">
+                        <% } else { %>
+                            <img id="main-product-image" src="/img/placeholder.png" alt="No Image">
+                        <% } %>
+                    </div>
+                    <% if (product.images && product.images.length > 1) { %>
+                        <div class="product-thumbnail-images">
+                            <% product.images.forEach((img, index) => { %>
+                                <img src="<%= img %>" alt="Thumbnail <%= index + 1 %>" class="<%= index === 0 ? 'active' : '' %>" onclick="changeMainImage(this)">
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="product-info">
+                    <p class="category-tag"><%= product.category ? product.category.name : 'Uncategorized' %></p>
+                    <h1><%= product.name %></h1>
+                    <p class="product-info-id">SKU: <%= product._id %></p>
+                    <p class="price-display">
+                        Rp <%= product.price.toLocaleString('id-ID') %> / <%= product.unit %>
+                        <span class="wholesale-info">Harga Grosir: Rp <%= product.wholesalePrice.toLocaleString('id-ID') %> (Minimum <%= product.minOrderQuantity %> <%= product.unit %>)</span>
+                    </p>
+                    <p class="stock-info">Stok Tersedia: <%= product.stock %> <%= product.unit %></p>
+
+                    <div class="alert alert-info">
+                        Pembelian minimum untuk harga grosir adalah <%= product.minOrderQuantity %> <%= product.unit %>.
+                    </div>
+
+                    <div class="quantity-selector">
+                        <label for="quantity">Jumlah:</label>
+                        <input type="number" id="quantity" name="quantity" value="<%= product.minOrderQuantity %>" min="1" max="<%= product.stock %>">
+                    </div>
+                    <button class="btn-add-to-cart-detail"
+                            data-product-id="<%= product._id %>"
+                            data-product-name="<%= product.name %>"
+                            data-product-price="<%= product.wholesalePrice %>"
+                            data-product-unit="<%= product.unit %>">
+                        Tambah ke Keranjang
+                    </button>
+
+                    <div class="product-description">
+                        <h2>Deskripsi Produk</h2>
+                        <p><%= product.description %></p>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <p>Produk tidak ditemukan.</p>
+        <% } %>
+    </main>
+
+    <%- include('../partials/footer') %>
+    <script>
+        function changeMainImage(thumbnail) {
+            document.querySelectorAll('.product-thumbnail-images img').forEach(img => img.classList.remove('active'));
+            thumbnail.classList.add('active');
+            document.getElementById('main-product-image').src = thumbnail.src;
+        }
+
+        // Client-side logic for "Add to Cart" button (optional, can be fully server-side for simplicity)
+        const addToCartButtons = document.querySelectorAll('.btn-add-to-cart-detail');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const productId = button.dataset.productId;
+                const productName = button.dataset.productName;
+                const productPrice = parseFloat(button.dataset.productPrice);
+                const productUnit = button.dataset.productUnit;
+                const quantityInput = document.getElementById('quantity');
+                const quantity = parseInt(quantityInput.value);
+
+                // Basic validation for quantity
+                if (isNaN(quantity) || quantity < 1) {
+                    alert('Jumlah harus minimal 1.');
+                    return;
+                }
+
+                // For now, we'll just log to console or redirect
+                // In the next step, we'll integrate with a server-side cart
+                console.log(`Menambahkan ke keranjang: ${quantity} x ${productName} (ID: ${productId})`);
+                
+                // Ideally, make an AJAX request to a cart API endpoint
+                // For now, let's redirect to a dummy cart page or just alert
+                alert(`${quantity} ${productUnit} ${productName} telah ditambahkan ke keranjang!`);
+                // window.location.href = '/cart'; // Redirect to cart page
+            });
+        });
+
+        // Update quantity input based on MOQ for detail page
+        const quantityInput = document.getElementById('quantity');
+        const minOrderQuantity = parseInt('<%= product.minOrderQuantity %>');
+        if (quantityInput) {
+            quantityInput.addEventListener('change', (event) => {
+                let value = parseInt(event.target.value);
+                if (isNaN(value) || value < minOrderQuantity) {
+                    event.target.value = minOrderQuantity;
+                }
+                if (value > <%= product.stock %>) {
+                    event.target.value = <%= product.stock %>;
+                }
+            });
+        }
+
+    </script>
+    <script src="/js/cart.js"></script> <!-- Link to cart JS for dynamic add to cart -->
+</body>
+</html>
