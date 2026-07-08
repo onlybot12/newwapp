@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <div class="admin-container">
+        <%- include('../partials/sidebar', { activePage: 'orders' }) %>
+        <main class="admin-main-content">
+            <h1><%= title %></h1>
+
+            <% if (success) { %>
+                <div class="alert alert-success"><%= success %></div>
+            <% } %>
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+
+            <div class="order-detail-grid">
+                <div class="order-info-card">
+                    <h3>Informasi Pelanggan</h3>
+                    <p><strong>Nama:</strong> <%= order.userId ? order.userId.username : 'N/A' %></p>
+                    <p><strong>Email:</strong> <%= order.userId ? order.userId.email : 'N/A' %></p>
+                    <p><strong>Telepon:</strong> <%= order.userId ? order.userId.phoneNumber : 'N/A' %></p>
+                </div>
+
+                <div class="order-info-card">
+                    <h3>Alamat Pengiriman</h3>
+                    <p><strong>Jalan:</strong> <%= order.shippingAddress.street %></p>
+                    <p><strong>Kota:</strong> <%= order.shippingAddress.city %></p>
+                    <p><strong>Provinsi:</strong> <%= order.shippingAddress.province %></p>
+                    <p><strong>Kode Pos:</strong> <%= order.shippingAddress.postalCode %></p>
+                    <p><strong>Telepon Penerima:</strong> <%= order.shippingAddress.phoneNumber %></p>
+                </div>
+
+                <div class="order-info-card">
+                    <h3>Detail Pesanan</h3>
+                    <p><strong>ID Pesanan:</strong> #<%= order._id %></p>
+                    <p><strong>Tanggal Pesan:</strong> <%= order.createdAt.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></p>
+                    <p><strong>Status:</strong> <span class="order-status status-<%= order.status %>"><%= order.status.replace(/_/g, ' ').toUpperCase() %></span></p>
+                    <form action="/admin/orders/<%= order._id %>/status" method="POST" style="margin-top: 15px;">
+                        <div class="form-group">
+                            <label for="status">Ubah Status:</label>
+                            <select name="status" id="status" class="form-control" style="width: auto; display: inline-block;">
+                                <option value="pending_whatsapp" <%= order.status === 'pending_whatsapp' ? 'selected' : '' %>>PENDING WHATSAPP</option>
+                                <option value="confirmed" <%= order.status === 'confirmed' ? 'selected' : '' %>>CONFIRMED</option>
+                                <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>SHIPPED</option>
+                                <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>COMPLETED</option>
+                                <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>CANCELLED</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                        </div>
+                    </form>
+                    <p><strong>Link WhatsApp Pelanggan:</strong>
+                        <a href="https://wa.me/<%= order.userId ? order.userId.phoneNumber : '' %>" target="_blank" class="btn btn-secondary btn-sm" style="margin-left: 5px;">Chat Pelanggan</a>
+                    </p>
+                    <% if (order.whatsappAdminLink) { %>
+                        <p><strong>Link WhatsApp Admin (dibuat user):</strong>
+                            <a href="<%= order.whatsappAdminLink %>" target="_blank" class="btn btn-secondary btn-sm" style="margin-left: 5px;">Lihat Pesan</a>
+                        </p>
+                    <% } %>
+                </div>
+            </div>
+
+            <h3>Produk Dipesan</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Gambar</th>
+                        <th>Nama Produk</th>
+                        <th>Harga per Unit</th>
+                        <th>Jumlah</th>
+                        <th>Total Item</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% order.items.forEach(item => { %>
+                        <tr>
+                            <td>
+                                <% if (item.productId && item.productId.images && item.productId.images.length > 0) { %>
+                                    <img src="<%= item.productId.images[0] %>" alt="<%= item.name %>" style="width: 50px; height: 50px; object-fit: cover;">
+                                <% } else { %>
+                                    <img src="/img/placeholder.png" alt="No Image" style="width: 50px; height: 50px; object-fit: cover;">
+                                <% } %>
+                            </td>
+                            <td><%= item.name %></td>
+                            <td>Rp <%= item.pricePerUnit.toLocaleString('id-ID') %></td>
+                            <td><%= item.quantity %></td>
+                            <td>Rp <%= item.totalItemPrice.toLocaleString('id-ID') %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align: right; font-weight: bold;">Total Keseluruhan:</td>
+                        <td style="font-weight: bold;">Rp <%= order.totalAmount.toLocaleString('id-ID') %></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <% if (order.orderNotes) { %>
+                <h3 style="margin-top: 30px;">Catatan Tambahan</h3>
+                <p style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;"><%= order.orderNotes %></p>
+            <% } %>
+        </main>
+    </div>
+    <%- include('../../partials/footer') %>
+    <style>
+        .order-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .order-info-card {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .order-info-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .order-info-card p {
+            margin-bottom: 8px;
+        }
+        .order-status {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #fff; /* Ensure text is white for better contrast */
+        }
+        .status-pending_whatsapp { background-color: #f0ad4e; } /* Orange */
+        .status-confirmed { background-color: #5bc0de; } /* Light Blue */
+        .status-shipped { background-color: #337ab7; } /* Darker Blue */
+        .status-completed { background-color: #5cb85c; } /* Green */
+        .status-cancelled { background-color: #d9534f; } /* Red */
+    </style>
+</body>
+</html>
