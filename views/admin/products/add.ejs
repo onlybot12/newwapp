@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <div class="admin-container">
+        <%- include('../partials/sidebar', { activePage: 'products' }) %>
+        <main class="admin-main-content">
+            <h1><%= title %></h1>
+
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+
+            <form action="/admin/products" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Nama Produk <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control" required value="<%= typeof name != 'undefined' ? name : '' %>">
+                </div>
+                <div class="form-group">
+                    <label for="description">Deskripsi Produk <span class="required">*</span></label>
+                    <textarea id="description" name="description" class="form-control" rows="5" required><%= typeof description != 'undefined' ? description : '' %></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="category">Kategori <span class="required">*</span></label>
+                    <select id="category" name="category" class="form-control" required>
+                        <option value="">Pilih Kategori</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat._id %>" <%= (typeof category != 'undefined' && category == cat._id.toString()) ? 'selected' : '' %>><%= cat.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="price">Harga Normal per Unit <span class="required">*</span></label>
+                    <input type="number" id="price" name="price" class="form-control" required min="0" step="0.01" value="<%= typeof price != 'undefined' ? price : '' %>">
+                </div>
+                <div class="form-group">
+                    <label for="wholesalePrice">Harga Grosir per Unit <span class="required">*</span></label>
+                    <input type="number" id="wholesalePrice" name="wholesalePrice" class="form-control" required min="0" step="0.01" value="<%= typeof wholesalePrice != 'undefined' ? wholesalePrice : '' %>">
+                </div>
+                <div class="form-group">
+                    <label for="minOrderQuantity">Min. Order Quantity (MOQ) <span class="required">*</span></label>
+                    <input type="number" id="minOrderQuantity" name="minOrderQuantity" class="form-control" required min="1" value="<%= typeof minOrderQuantity != 'undefined' ? minOrderQuantity : '' %>">
+                </div>
+                <div class="form-group">
+                    <label for="stock">Stok <span class="required">*</span></label>
+                    <input type="number" id="stock" name="stock" class="form-control" required min="0" value="<%= typeof stock != 'undefined' ? stock : '' %>">
+                </div>
+                <div class="form-group">
+                    <label for="unit">Satuan (Contoh: pcs, pak, karton) <span class="required">*</span></label>
+                    <input type="text" id="unit" name="unit" class="form-control" required value="<%= typeof unit != 'undefined' ? unit : '' %>">
+                </div>
+                <div class="form-group">
+                    <label for="images">Gambar Produk (Maks. 5)</label>
+                    <input type="file" id="images" name="images" class="form-control-file" multiple accept="image/*">
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" id="isFeatured" name="isFeatured" class="form-check-input" <%= (typeof isFeatured != 'undefined' && isFeatured) ? 'checked' : '' %>>
+                    <label class="form-check-label" for="isFeatured">Produk Unggulan</label>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" id="isActive" name="isActive" class="form-check-input" checked <%= (typeof isActive != 'undefined' && isActive) ? 'checked' : '' %>>
+                    <label class="form-check-label" for="isActive">Aktif</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Tambah Produk</button>
+                <a href="/admin/products" class="btn btn-secondary">Batal</a>
+            </form>
+        </main>
+    </div>
+    <%- include('../../partials/footer') %>
+</body>
+</html>
