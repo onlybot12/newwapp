@@ -76,6 +76,7 @@ app.get('/', async (req, res) => {
             title: 'Grosir Mart - Beranda',
             products,
             categories,
+            error: null
             // user: res.locals.user is already available via middleware
             // error: res.locals.session.error_msg, etc. will be passed via res.locals.session
         });
