@@ -3,19 +3,45 @@
         <div class="logo">
             <a href="/">Grosir Mart</a>
         </div>
+
         <ul>
             <li><a href="/">Beranda</a></li>
             <li><a href="/products">Produk</a></li>
-            <% if (user) { %>
-                <li><a href="/cart">Keranjang (<span id="cart-count">0</span>)</a></li>
-                <li><a href="/orders">Pesanan Saya</a></li>
-                <% if (user.role === 'admin') { %>
-                    <li><a href="/admin/dashboard">Admin Dashboard</a></li>
+
+            <% if (typeof user !== 'undefined' && user) { %>
+
+                <li>
+                    <a href="/cart">
+                        Keranjang (<span id="cart-count">0</span>)
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/orders">Pesanan Saya</a>
+                </li>
+
+                <% if (user.role && user.role === 'admin') { %>
+                    <li>
+                        <a href="/admin">Admin Dashboard</a>
+                    </li>
                 <% } %>
-                <li><a href="/logout">Logout (<%= user.username %>)</a></li>
+
+                <li>
+                    <a href="/logout">
+                        Logout (<%= user.username %>)
+                    </a>
+                </li>
+
             <% } else { %>
-                <li><a href="/login">Login</a></li>
-                <li><a href="/register">Daftar</a></li>
+
+                <li>
+                    <a href="/login">Login</a>
+                </li>
+
+                <li>
+                    <a href="/register">Daftar</a>
+                </li>
+
             <% } %>
         </ul>
     </nav>
