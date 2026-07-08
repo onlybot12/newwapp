@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <div class="admin-container">
+        <%- include('../partials/sidebar', { activePage: 'categories' }) %>
+        <main class="admin-main-content">
+            <h1><%= title %></h1>
+
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+
+            <form action="/admin/categories/edit/<%= category._id %>" method="POST">
+                <div class="form-group">
+                    <label for="name">Nama Kategori</label>
+                    <input type="text" id="name" name="name" class="form-control" required value="<%= category.name %>">
+                </div>
+                <div class="form-group">
+                    <label for="description">Deskripsi</label>
+                    <textarea id="description" name="description" class="form-control" rows="3"><%= category.description %></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="icon">Icon URL (Opsional)</label>
+                    <input type="text" id="icon" name="icon" class="form-control" value="<%= category.icon %>">
+                </div>
+                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                <a href="/admin/categories" class="btn btn-secondary">Batal</a>
+            </form>
+        </main>
+    </div>
+    <%- include('../../partials/footer') %>
+</body>
+</html>
