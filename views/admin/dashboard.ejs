@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css"> <!-- Admin specific CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <div class="admin-container">
+        <%- include('partials/sidebar') %>
+        <main class="admin-main-content">
+            <h1><%= title %></h1>
+            <p>Selamat datang di dashboard admin, <%= user.username %>.</p>
+
+            <% if (error) { %>
+                <div class="alert alert-danger"><%= error %></div>
+            <% } %>
+
+            <div class="admin-stats-grid">
+                <div class="stat-card">
+                    <h3>Total Pengguna</h3>
+                    <p><%= stats.totalUsers %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Produk</h3>
+                    <p><%= stats.totalProducts %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Pesanan</h3>
+                    <p><%= stats.totalOrders %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pesanan Pending</h3>
+                    <p><%= stats.pendingOrders %></p>
+                </div>
+            </div>
+            <!-- More dashboard content here -->
+        </main>
+    </div>
+    <%- include('../partials/footer') %>
+</body>
+</html>
